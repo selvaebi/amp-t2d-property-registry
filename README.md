@@ -1,2 +1,2 @@
-# amp-t2d-web-config
-Configuration service for AMP T2D web portal.
+# amp-t2d-property-registry
+Registry service for AMP T2D properties.
