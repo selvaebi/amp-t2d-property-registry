@@ -6,7 +6,7 @@
     <groupId>uk.ac.ebi.ampt2d</groupId>
     <artifactId>amp-t2d-property-registry-service-application</artifactId>
     <version>0.1.0</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>amp-t2d-property-registry</name>
     <url>http://github.com/EBIvariation/amp-t2d-property-registry</url>
@@ -22,6 +22,11 @@
     </parent>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-rest</artifactId>
@@ -51,6 +56,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.0.0.RELEASE</version>
             </plugin>
         </plugins>
     </build>
