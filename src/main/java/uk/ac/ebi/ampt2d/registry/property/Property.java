@@ -17,32 +17,48 @@
  */
 package uk.ac.ebi.ampt2d.registry;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.EnumType;
 import javax.persistence.Id;
 
 @Entity
 public class Property {
 
-    @Id
-    private String name;
+    public enum Type {
+        INTEGER,
+        FLOAT,
+        DOUBLE,
+        STRING
+    }
 
-    private String type;
+    @Id
+    @Column(length=31, nullable=false, unique=true, updatable=false)
+    private String id;
+
+    @Enumerated(EnumType.STRING)
+    private Type type;
+
+    @Column(length=31, nullable=false)
     private String meaning;
+
+    @Column(length=256)
     private String description;
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 

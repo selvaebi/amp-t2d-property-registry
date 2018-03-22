@@ -18,7 +18,6 @@
 package uk.ac.ebi.ampt2d.registry;
 
 import java.util.List;
-
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -26,7 +25,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource(collectionResourceRel = "property", path = "property")
 public interface PropertyRepository extends CrudRepository<Property, String> {
 
-    Property findByName(@Param("name") String name);
-
-    List<Property> findByType(@Param("type") String type);
+    List<Property> findByType(Property.Type type);
 }
