@@ -17,13 +17,24 @@
  */
 package uk.ac.ebi.ampt2d.registry;
 
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.EnumType;
+import javax.persistence.EntityListeners;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Property {
 
     public enum Type {
@@ -33,8 +44,8 @@ public class Property {
         STRING
     }
 
-    @Id
     @Column(length=31, nullable=false, unique=true, updatable=false)
+    @Id
     private String id;
 
     @Enumerated(EnumType.STRING)
@@ -45,6 +56,20 @@ public class Property {
 
     @Column(length=256)
     private String description;
+
+    @CreatedBy
+    protected String createdBy;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
+    private Date createdDate;
+
+    @LastModifiedBy
+    private String lastModifiedBy;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @LastModifiedDate
+    private Date lastModifiedDate;
 
     public String getId() {
         return id;
@@ -76,5 +101,37 @@ public class Property {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 }
