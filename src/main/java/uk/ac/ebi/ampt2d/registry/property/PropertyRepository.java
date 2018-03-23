@@ -15,15 +15,16 @@
  * limitations under the License.
  *
  */
-package uk.ac.ebi.ampt2d.registry;
+package uk.ac.ebi.ampt2d.registry.property;
 
-import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import java.util.List;
+
 @RepositoryRestResource(collectionResourceRel = "property", path = "property")
 public interface PropertyRepository extends CrudRepository<Property, String> {
 
-    List<Property> findByType(Property.Type type);
+    List<Property> findByType(@Param("type") Property.Type type);
 }
