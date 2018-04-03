@@ -17,30 +17,20 @@
  */
 package uk.ac.ebi.ampt2d.registry;
 
+import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
-import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
-import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
-import uk.ac.ebi.ampt2d.registry.entities.Property;
+
+import java.time.format.DateTimeFormatterBuilder;
 
 @Configuration
-@EnableJpaAuditing
-public class SpringDataRestConfig {
+public class JacksonConfig {
 
     @Bean
-    public RepositoryRestConfigurer repositoryRestConfigurer() {
-        return new RepositoryRestConfigurerAdapter() {
-
-            @Override
-            public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
-                config.exposeIdsFor(
-                        Property.class
-                );
-            }
-
-        };
+    public Jackson2ObjectMapperBuilderCustomizer addZoneLocalDateSerializer() {
+        return builder -> builder.serializers(new ZonedDateTimeSerializer(new DateTimeFormatterBuilder()
+                .appendPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").toFormatter()));
     }
 
 }

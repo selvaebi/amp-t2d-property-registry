@@ -25,7 +25,7 @@ import uk.ac.ebi.ampt2d.registry.entities.Property;
 
 import java.util.List;
 
-@Api(tags = "Property")
+@Api(tags = "Property Entity")
 @RepositoryRestResource
 public interface PropertyRepository extends CrudRepository<Property, String> {
 

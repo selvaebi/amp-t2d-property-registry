@@ -57,23 +57,23 @@ public class RegistryServiceApplicationTests {
     @Test
     public void shouldReturnRepositoryIndex() throws Exception {
         mockMvc.perform(get("/")).andExpect(status().isOk()).andExpect(
-                jsonPath("$._links.property").exists());
+                jsonPath("$._links.properties").exists());
     }
 
     @Test
     public void shouldCreateEntity() throws Exception {
-        mockMvc.perform(post("/property").content(
+        mockMvc.perform(post("/properties").content(
                 "{\"id\":\"CALL_RATE\"," +
                         "\"type\":\"FLOAT\"," +
                         "\"meaning\":\"CALL_RATE\"," +
                         "\"description\":\"calling rate\"}")).andExpect(
                 status().isCreated()).andExpect(
-                header().string("Location", containsString("property/")));
+                header().string("Location", containsString("properties/")));
     }
 
     @Test
     public void shouldRetrieveEntity() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post("/property").content(
+        MvcResult mvcResult = mockMvc.perform(post("/properties").content(
                 "{\"id\":\"CALL_RATE\"," +
                         "\"type\":\"FLOAT\"," +
                         "\"meaning\":\"CALL_RATE\"," +
@@ -89,7 +89,7 @@ public class RegistryServiceApplicationTests {
 
     @Test
     public void shouldQueryEntity() throws Exception {
-        mockMvc.perform(post("/property").content(
+        mockMvc.perform(post("/properties").content(
                 "{\"id\":\"CALL_RATE\"," +
                         "\"type\":\"FLOAT\"," +
                         "\"meaning\":\"CALL_RATE\"," +
@@ -97,16 +97,16 @@ public class RegistryServiceApplicationTests {
                 status().isCreated());
 
         mockMvc.perform(
-                get("/property/search/findByType?type={type}", "FLOAT")).andExpect(
+                get("/properties/search/findByType?type={type}", "FLOAT")).andExpect(
                 status().isOk()).andExpect(
-                jsonPath("$._embedded.property[0].type").value("FLOAT")).andExpect(
-                jsonPath("$._embedded.property[0].meaning").value("CALL_RATE")).andExpect(
-                jsonPath("$._embedded.property[0].description").value("calling rate"));
+                jsonPath("$._embedded.properties[0].type").value("FLOAT")).andExpect(
+                jsonPath("$._embedded.properties[0].meaning").value("CALL_RATE")).andExpect(
+                jsonPath("$._embedded.properties[0].description").value("calling rate"));
     }
 
     @Test
     public void shouldUpdateEntity() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post("/property").content(
+        MvcResult mvcResult = mockMvc.perform(post("/properties").content(
                 "{\"id\":\"CALL_RATE\"," +
                         "\"type\":\"FLOAT\"," +
                         "\"meaning\":\"CALL_RATE\"," +
@@ -118,19 +118,19 @@ public class RegistryServiceApplicationTests {
         mockMvc.perform(put(location).content(
                 "{\"id\":\"CALL_RATE\"," +
                         "\"type\":\"DOUBLE\"," +
-                        "\"meaning\":\"CALLRATE\"," +
+                        "\"meaning\":\"CALL_RATE\"," +
                         "\"description\":\"call rate\"}")).andExpect(
                 status().isNoContent());
 
         mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
                 jsonPath("$.type").value("DOUBLE")).andExpect(
-                jsonPath("$.meaning").value("CALLRATE")).andExpect(
+                jsonPath("$.meaning").value("CALL_RATE")).andExpect(
                 jsonPath("$.description").value("call rate"));
     }
 
     @Test
     public void shouldPartiallyUpdateEntity() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post("/property").content(
+        MvcResult mvcResult = mockMvc.perform(post("/properties").content(
                 "{\"id\":\"CALL_RATE\"," +
                         "\"type\":\"FLOAT\"," +
                         "\"meaning\":\"CALL_RATE\"," +
@@ -151,7 +151,7 @@ public class RegistryServiceApplicationTests {
 
     @Test
     public void shouldDeleteEntity() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post("/property").content(
+        MvcResult mvcResult = mockMvc.perform(post("/properties").content(
                 "{\"id\":\"CALL_RATE\"," +
                         "\"type\":\"FLOAT\"," +
                         "\"meaning\":\"CALL_RATE\"," +

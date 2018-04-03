@@ -17,8 +17,10 @@
  */
 package uk.ac.ebi.ampt2d.registry.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -30,12 +32,9 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -69,6 +68,7 @@ public class Property {
 
     }
 
+    @ApiModelProperty(position = 1)
     @JsonProperty
     @NotNull
     @Size(min = 1, max = 255)
@@ -76,18 +76,21 @@ public class Property {
     @Column(nullable = false, unique = true, updatable = false)
     private String id;
 
+    @ApiModelProperty(position = 2)
     @JsonProperty
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Type type;
 
+    @ApiModelProperty(position = 3)
     @JsonProperty
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Meaning meaning;
 
+    @ApiModelProperty(position = 4)
     @JsonProperty
     @NotNull
     @NotBlank
@@ -95,16 +98,16 @@ public class Property {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @ApiModelProperty(value = "Last modified data", readOnly = true, allowEmptyValue = true)
-    @JsonProperty(required = false, access = JsonProperty.Access.READ_ONLY)
-    @Temporal(TemporalType.TIMESTAMP)
+    @ApiModelProperty(position = 5, value = "Creation date", readOnly = true, allowEmptyValue = true)
+    @JsonIgnoreProperties(ignoreUnknown = true, allowGetters = true)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @CreatedDate
-    private Date createdDate;
+    @Column(updatable = false)
+    private ZonedDateTime createdDate;
 
-    @ApiModelProperty(value = "Last modified data", readOnly = true, allowEmptyValue = true)
-    @JsonProperty(required = false, access = JsonProperty.Access.READ_ONLY)
-    @Temporal(TemporalType.TIMESTAMP)
+    @ApiModelProperty(position = 6, value = "Last modified date", readOnly = true, allowEmptyValue = true)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @LastModifiedDate
-    private Date lastModifiedDate;
+    private ZonedDateTime lastModifiedDate;
 
 }

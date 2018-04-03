@@ -22,6 +22,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -42,9 +43,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.lang.reflect.WildcardType;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static springfox.documentation.schema.AlternateTypeRules.newRule;
 
+@Configuration
 @EnableSwagger2
 @Import({SpringDataRestConfiguration.class, BeanValidatorPluginsConfiguration.class})
 public class SwaggerConfig {
@@ -62,11 +65,12 @@ public class SwaggerConfig {
                 .apiInfo(getApiInfo())
                 .pathMapping("/")
                 .tags(
-                        new Tag("Property", "Property definition")
+                        new Tag("Property Entity", "Property definition")
                 )
-                .directModelSubstitute(LocalDate.class, String.class)
+                //.directModelSubstitute(LocalDateTime.class, String.class)
                 .genericModelSubstitutes(ResponseEntity.class)
-                .alternateTypeRules(getSubstitutionRules());
+                .alternateTypeRules(getSubstitutionRules())
+                ;
     }
 
     private Predicate<String> getScanRestServicesPathPredicate() {
