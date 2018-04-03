@@ -17,7 +17,6 @@
  */
 package uk.ac.ebi.ampt2d.registry.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.NotBlank;
@@ -98,15 +97,10 @@ public class Property {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @ApiModelProperty(position = 5, value = "Creation date", readOnly = true, allowEmptyValue = true)
-    @JsonIgnoreProperties(ignoreUnknown = true, allowGetters = true)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @CreatedDate
     @Column(updatable = false)
     private ZonedDateTime createdDate;
 
-    @ApiModelProperty(position = 6, value = "Last modified date", readOnly = true, allowEmptyValue = true)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @LastModifiedDate
     private ZonedDateTime lastModifiedDate;
 
