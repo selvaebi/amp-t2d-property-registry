@@ -27,7 +27,7 @@ import uk.ac.ebi.ampt2d.registry.entities.Property;
 
 @Configuration
 @EnableJpaAuditing
-public class SpringDataRestConfig {
+public class SpringDataRestConfiguration {
 
     @Bean
     public RepositoryRestConfigurer repositoryRestConfigurer() {

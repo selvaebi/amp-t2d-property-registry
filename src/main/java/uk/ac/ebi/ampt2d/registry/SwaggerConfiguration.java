@@ -50,13 +50,13 @@ import static springfox.documentation.schema.AlternateTypeRules.newRule;
 @Configuration
 @EnableSwagger2
 @Import({SpringDataRestConfiguration.class, BeanValidatorPluginsConfiguration.class})
-public class SwaggerConfig {
+public class SwaggerConfiguration {
 
     @Autowired
     private TypeResolver typeResolver;
 
     @Bean
-    public Docket petApi() {
+    public Docket propertyRegistryApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.any())
@@ -67,7 +67,6 @@ public class SwaggerConfig {
                 .tags(
                         new Tag("Property Entity", "Property definition")
                 )
-                //.directModelSubstitute(LocalDateTime.class, String.class)
                 .genericModelSubstitutes(ResponseEntity.class)
                 .alternateTypeRules(getSubstitutionRules())
                 ;
@@ -87,8 +86,8 @@ public class SwaggerConfig {
                 .license("Apache 2.0")
                 .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0")
                 .termsOfServiceUrl(null)
-                .title("AMP T2D Metadata API")
-                .description("Metadata API for the project AMP-T2D")
+                .title("AMP T2D Property registry API")
+                .description("Property registry API for the project AMP-T2D")
                 .version("1.0")
                 .build();
     }

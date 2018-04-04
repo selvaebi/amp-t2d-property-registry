@@ -23,14 +23,14 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class RegistryServiceApplication extends SpringBootServletInitializer {
+public class PropertyRegistryServiceApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(RegistryServiceApplication.class, args);
+        SpringApplication.run(PropertyRegistryServiceApplication.class, args);
     }
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(RegistryServiceApplication.class);
+        return application.sources(PropertyRegistryServiceApplication.class);
     }
 }
