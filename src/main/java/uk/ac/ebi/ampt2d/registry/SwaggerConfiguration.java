@@ -66,11 +66,12 @@ public class SwaggerConfiguration {
     public Docket propertyRegistryApi() {
 
         return new Docket(DocumentationType.SWAGGER_2)
+                .host("www.ebi.ac.uk")
                 .protocols(new HashSet<>(Arrays.asList("https")))
                 .pathProvider(new RelativePathProvider(servletContext) {
                     @Override
                     public String getApplicationBasePath() {
-                        return "/";
+                        return servletContext.getContextPath() ;
                     }
                 })
                 .select()
