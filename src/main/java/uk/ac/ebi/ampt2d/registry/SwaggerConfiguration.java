@@ -71,7 +71,7 @@ public class SwaggerConfiguration {
                 .pathProvider(new RelativePathProvider(servletContext) {
                     @Override
                     public String getApplicationBasePath() {
-                        return "/" + super.getApplicationBasePath();
+                        return "/";
                     }
                 })
                 .select()
