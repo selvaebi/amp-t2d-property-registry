@@ -36,11 +36,13 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.service.Tag;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.data.rest.configuration.SpringDataRestConfiguration;
+import springfox.documentation.spring.web.paths.RelativePathProvider;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger.web.UiConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import javax.servlet.ServletContext;
 import java.lang.reflect.WildcardType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,15 +57,25 @@ public class SwaggerConfiguration {
     @Autowired
     private TypeResolver typeResolver;
 
+    @Autowired
+    private ServletContext servletContext;
+
     @Bean
     public Docket propertyRegistryApi() {
         return new Docket(DocumentationType.SWAGGER_2)
+                .host("www.ebi.ac.uk")
+                .pathProvider(new RelativePathProvider(servletContext) {
+                    @Override
+                    public String getApplicationBasePath() {
+                        return "/ega/ampt2d/registry";
+                    }
+                })
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(getScanRestServicesPathPredicate())
                 .build()
                 .apiInfo(getApiInfo())
-                .pathMapping("/")
+                .pathMapping("")
                 .tags(
                         new Tag("Property Entity", "Property definition")
                 )
