@@ -63,11 +63,10 @@ public class SwaggerConfiguration {
     @Bean
     public Docket propertyRegistryApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .host("www.ebi.ac.uk")
                 .pathProvider(new RelativePathProvider(servletContext) {
                     @Override
                     public String getApplicationBasePath() {
-                        return "/ega/ampt2d/registry";
+                        return "/";
                     }
                 })
                 .select()
