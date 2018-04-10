@@ -62,16 +62,15 @@ public class SwaggerConfiguration {
     private ServletContext servletContext;
 
     @Bean
-    @CrossOrigin(origins = "*")
     public Docket propertyRegistryApi() {
 
         return new Docket(DocumentationType.SWAGGER_2)
-                .host("www.ebi.ac.uk")
+                .host("www.ebi.ac.uk/ega/ampt2d/registry")
                 .protocols(new HashSet<>(Arrays.asList("https")))
                 .pathProvider(new RelativePathProvider(servletContext) {
                     @Override
                     public String getApplicationBasePath() {
-                        return servletContext.getContextPath() ;
+                        return "/" ;
                     }
                 })
                 .select()
