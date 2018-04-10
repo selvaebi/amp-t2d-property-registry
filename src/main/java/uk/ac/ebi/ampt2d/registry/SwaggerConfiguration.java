@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.context.request.async.DeferredResult;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -44,8 +45,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.servlet.ServletContext;
 import java.lang.reflect.WildcardType;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import static springfox.documentation.schema.AlternateTypeRules.newRule;
 
@@ -61,12 +62,16 @@ public class SwaggerConfiguration {
     private ServletContext servletContext;
 
     @Bean
+    @CrossOrigin(origins = "*")
     public Docket propertyRegistryApi() {
+
         return new Docket(DocumentationType.SWAGGER_2)
+                .protocols(new HashSet<>(Arrays.asList("https")))
+                .host("www.ebi.ac.uk")
                 .pathProvider(new RelativePathProvider(servletContext) {
                     @Override
                     public String getApplicationBasePath() {
-                        return "/";
+                        return "/ega/ampt2d/registry/";
                     }
                 })
                 .select()
