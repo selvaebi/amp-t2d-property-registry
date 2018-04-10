@@ -67,7 +67,6 @@ public class SwaggerConfiguration {
 
         return new Docket(DocumentationType.SWAGGER_2)
                 .protocols(new HashSet<>(Arrays.asList("https")))
-                .host("www.ebi.ac.uk")
                 .pathProvider(new RelativePathProvider(servletContext) {
                     @Override
                     public String getApplicationBasePath() {
