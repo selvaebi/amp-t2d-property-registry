@@ -25,7 +25,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.context.request.async.DeferredResult;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -37,7 +36,6 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.service.Tag;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.data.rest.configuration.SpringDataRestConfiguration;
-import springfox.documentation.spring.web.paths.RelativePathProvider;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger.web.UiConfigurationBuilder;
@@ -65,14 +63,7 @@ public class SwaggerConfiguration {
     public Docket propertyRegistryApi() {
 
         return new Docket(DocumentationType.SWAGGER_2)
-                .host("www.ebi.ac.uk/ega/ampt2d/registry")
                 .protocols(new HashSet<>(Arrays.asList("https")))
-                .pathProvider(new RelativePathProvider(servletContext) {
-                    @Override
-                    public String getApplicationBasePath() {
-                        return "/" ;
-                    }
-                })
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(getScanRestServicesPathPredicate())
