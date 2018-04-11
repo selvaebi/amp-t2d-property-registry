@@ -56,14 +56,11 @@ public class SwaggerConfiguration {
     @Autowired
     private TypeResolver typeResolver;
 
-    @Autowired
-    private ServletContext servletContext;
-
     @Bean
     public Docket propertyRegistryApi() {
 
         return new Docket(DocumentationType.SWAGGER_2)
-                .protocols(new HashSet<>(Arrays.asList("https")))
+                .protocols(new HashSet<>(Arrays.asList("http","https")))
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(getScanRestServicesPathPredicate())
