@@ -41,7 +41,6 @@ import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger.web.UiConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import javax.servlet.ServletContext;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -58,7 +57,6 @@ public class SwaggerConfiguration {
 
     @Bean
     public Docket propertyRegistryApi() {
-
         return new Docket(DocumentationType.SWAGGER_2)
                 .protocols(new HashSet<>(Arrays.asList("http","https")))
                 .select()
@@ -66,7 +64,7 @@ public class SwaggerConfiguration {
                 .paths(getScanRestServicesPathPredicate())
                 .build()
                 .apiInfo(getApiInfo())
-                .pathMapping("")
+                .pathMapping("/")
                 .tags(
                         new Tag("Property Entity", "Property definition")
                 )

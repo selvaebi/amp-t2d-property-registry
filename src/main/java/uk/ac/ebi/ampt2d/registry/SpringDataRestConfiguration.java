@@ -35,9 +35,7 @@ public class SpringDataRestConfiguration {
 
             @Override
             public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
-                config.getCorsRegistry().addMapping("/**")
-                       .allowedMethods("*") //
-                        .allowedOrigins("*");
+                config.getCorsRegistry().addMapping("/**").allowedMethods("*").allowedOrigins("*");
                 config.exposeIdsFor(
                         Property.class
                 );
