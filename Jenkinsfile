@@ -5,9 +5,9 @@ pipeline {
     }
   }
   environment {
-    stagingPostgresDbUrl = credentials('STAGINGPOSTGRESDBURL')
-    fallBackPostgresDbUrl = credentials('STAGINGPOSTGRESDBURL')
-    productionPostgresDbUrl = credentials('STAGINGPOSTGRESDBURL')
+    stagingPostgresDbUrl = credentials('STAGINGPROPERTYREGISTRYDBURL')
+    fallBackPostgresDbUrl = credentials('STAGINGPROPERTYREGISTRYDBURL')
+    productionPostgresDbUrl = credentials('STAGINGPROPERTYREGISTRYDBURL')
     postgresDBUserName = credentials('POSTGRESDBUSERNAME')
     postgresDBPassword = credentials('POSTGRESDBPASSWORD')
     tomcatCredentials = credentials('TOMCATCREDENTIALS')
@@ -22,7 +22,7 @@ pipeline {
   stages {
     stage('Default Build pointing to Staging DB') {
       steps {
-        sh "mvn clean package -DskipTests -DbuildDirectory=staging/target -DdbUrl=${stagingPostgresDbUrl} -DdbUsername=${postgresDBUserName} -DdbPassword=${postgresDBPassword}"
+        sh "mvn clean package -DskipTests -DbuildDirectory=staging/target -Dampt2d-property-registry-db.url=${stagingPostgresDbUrl} -Dampt2d-property-registry-db.username=${postgresDBUserName} -Dampt2d-property-registry-db.password=${postgresDBPassword}"
       }
     }
     stage('Build For FallBack And Production') {
@@ -33,9 +33,9 @@ pipeline {
       }
       steps {
         echo 'Build pointing to FallBack DB'
-        sh "mvn clean package -DskipTests -DbuildDirectory=fallback/target -DdbUrl=${fallBackPostgresDbUrl} -DdbUsername=${postgresDBUserName} -DdbPassword=${postgresDBPassword}"
+        sh "mvn clean package -DskipTests -DbuildDirectory=fallback/target -Dampt2d-property-registry-db.url=${fallBackPostgresDbUrl} -Dampt2d-property-registry-db.username=${postgresDBUserName} -Dampt2d-property-registry-db.password=${postgresDBPassword}"
         echo 'Build pointing to Production DB'
-        sh "mvn clean package -DskipTests -DbuildDirectory=production/target -DdbUrl=${productionPostgresDbUrl} -DdbUsername=${postgresDBUserName} -DdbPassword=${postgresDBPassword}"
+        sh "mvn clean package -DskipTests -DbuildDirectory=production/target -Dampt2d-property-registry-db.url=${productionPostgresDbUrl} -Dampt2d-property-registry-db.username=${postgresDBUserName} -Dampt2d-property-registry-db.password=${postgresDBPassword}"
       }
     }
     stage('Deploy To Staging') {
@@ -46,7 +46,7 @@ pipeline {
       }
       steps {
         echo 'Deploying to Staging'
-        sh "curl --upload-file staging/target/accessioning-service*.war 'http://'${tomcatCredentials}'@'${stagingHost}':8080/manager/text/deploy?path=/ega/t2d/accession&update=true' | grep 'OK - Deployed application at context path '"
+        sh "curl --upload-file staging/target/amp-t2d-property-registry-*.war 'http://'${tomcatCredentials}'@'${stagingHost}':8080/manager/text/deploy?path=/ega/ampt2d/registry&update=true' | grep 'OK - Deployed application at context path '"
       }
     }
     stage('Deploy To FallBack And Production') {
@@ -57,10 +57,10 @@ pipeline {
       }
       steps {
         echo 'Deploying to Fallback'
-        sh "curl --upload-file fallback/target/accessioning-service*.war 'http://'${tomcatCredentials}'@'${fallbackHost}':8080/manager/text/deploy?path=/ega/t2d/accession&update=true' | grep 'OK - Deployed application at context path '"
+        sh "curl --upload-file fallback/target/amp-t2d-property-registry-*.war 'http://'${tomcatCredentials}'@'${fallbackHost}':8080/manager/text/deploy?path=/ega/ampt2d/registry&update=true' | grep 'OK - Deployed application at context path '"
         echo 'Deploying to Production'
-        sh "curl --upload-file production/target/accessioning-service*.war 'http://'${tomcatCredentials}'@'${productionHost}':8080/manager/text/deploy?path=/ega/t2d/accession&update=true' | grep 'OK - Deployed application at context path '"
-        archiveArtifacts artifacts: 'production/target/*.war' , fingerprint: true
+        sh "curl --upload-file production/target/amp-t2d-property-registry-*.war 'http://'${tomcatCredentials}'@'${productionHost}':8080/manager/text/deploy?path=/ega/ampt2d/registry&update=true' | grep 'OK - Deployed application at context path '"
+        archiveArtifacts artifacts: 'production/target/amp-t2d-property-registry-*.war' , fingerprint: true
       }
     }
   }
