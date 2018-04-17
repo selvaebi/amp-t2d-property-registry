@@ -30,7 +30,6 @@ import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.ZonedDateTime;
@@ -93,8 +92,7 @@ public class Property {
     @JsonProperty
     @NotNull
     @NotBlank
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false,columnDefinition = "TEXT")
     private String description;
 
     @CreatedDate
