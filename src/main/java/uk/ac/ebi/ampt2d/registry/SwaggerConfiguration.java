@@ -68,7 +68,7 @@ public class SwaggerConfiguration {
                 .pathProvider(new RelativePathProvider(servletContext) {
                     @Override
                     public String getApplicationBasePath() {
-                        return "/ega/ampt2d/propRegistry";
+                        return "/ega/ampt2d/registry";
                     }
                 })
                 .select()
