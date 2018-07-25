@@ -23,6 +23,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
+import uk.ac.ebi.ampt2d.registry.entities.Phenotype;
 import uk.ac.ebi.ampt2d.registry.entities.Property;
 
 @Configuration
@@ -37,6 +38,7 @@ public class SpringDataRestConfiguration {
             public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
                 config.getCorsRegistry().addMapping("/**").allowedMethods("*").allowedOrigins("*");
                 config.exposeIdsFor(
+                        Phenotype.class,
                         Property.class
                 );
             }
