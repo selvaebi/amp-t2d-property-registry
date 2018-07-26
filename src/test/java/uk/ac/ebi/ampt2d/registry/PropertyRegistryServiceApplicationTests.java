@@ -26,15 +26,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import uk.ac.ebi.ampt2d.registry.repositories.PhenotypeRepository;
 import uk.ac.ebi.ampt2d.registry.repositories.PropertyRepository;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -47,10 +46,14 @@ public class PropertyRegistryServiceApplicationTests {
     private MockMvc mockMvc;
 
     @Autowired
+    private PhenotypeRepository phenotypeRepository;
+
+    @Autowired
     private PropertyRepository propertyRepository;
 
     @Before
     public void deleteAllBeforeTests() throws Exception {
+        phenotypeRepository.deleteAll();
         propertyRepository.deleteAll();
     }
 
@@ -58,29 +61,108 @@ public class PropertyRegistryServiceApplicationTests {
     public void shouldReturnRepositoryIndex() throws Exception {
         mockMvc.perform(get("/")).andExpect(status().isOk()).andExpect(
                 jsonPath("$._links.properties").exists());
+        mockMvc.perform(get("/")).andExpect(status().isOk()).andExpect(
+                jsonPath("$._links.phenotypes").exists());
+    }
+
+    private String postTestEntity(String uri, String content) throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(uri).content(content))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        return mvcResult.getResponse().getHeader("Location");
+    }
+
+    private String postTestPhenotype() throws Exception {
+        String content = "{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"ANTHROPOMETRIC\"}";
+
+        return postTestEntity("/phenotypes", content);
     }
 
     @Test
-    public void shouldCreateEntity() throws Exception {
-        mockMvc.perform(post("/properties").content(
-                "{\"id\":\"CALL_RATE\"," +
-                        "\"type\":\"FLOAT\"," +
-                        "\"meaning\":\"CALL_RATE\"," +
-                        "\"description\":\"calling rate\"}")).andExpect(
-                status().isCreated()).andExpect(
-                header().string("Location", containsString("properties/")));
+    public void shouldCreatePhenotype() throws Exception {
+        String location = postTestPhenotype();
+
+        assert location.contains("/phenotypes/");
     }
 
     @Test
-    public void shouldRetrieveEntity() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post("/properties").content(
-                "{\"id\":\"CALL_RATE\"," +
-                        "\"type\":\"FLOAT\"," +
-                        "\"meaning\":\"CALL_RATE\"," +
-                        "\"description\":\"calling rate\"}")).andExpect(
-                status().isCreated()).andReturn();
+    public void shouldRetrievePhenotype() throws Exception {
+        String location = postTestPhenotype();
 
-        String location = mvcResult.getResponse().getHeader("Location");
+        mockMvc.perform(get(location))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.phenotypeGroup").value("ANTHROPOMETRIC"));
+    }
+
+    @Test
+    public void shouldQueryPhenotype() throws Exception {
+        String location = postTestPhenotype();
+
+        mockMvc.perform(get("/phenotypes/search/findByPhenotypeGroup?phenotypeGroup=ANTHROPOMETRIC"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$..phenotypes").isArray())
+                .andExpect(jsonPath("$..phenotypes.length()").value(1))
+                .andExpect(jsonPath("$..phenotypes[0]..phenotype.href").value(location));
+    }
+
+    @Test
+    public void shouldUpdatePhenotype() throws Exception {
+        String location = postTestPhenotype();
+
+        mockMvc.perform(put(location)
+                .content("{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"RENAL\"}"))
+                .andExpect(status().is2xxSuccessful());
+
+        mockMvc.perform(get(location))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.phenotypeGroup").value("RENAL"));
+    }
+
+    @Test
+    public void shouldPartiallyUpdatePhenotype() throws Exception {
+        String location = postTestPhenotype();
+
+        mockMvc.perform(patch(location)
+                .content("{\"phenotypeGroup\":\"RENAL\"}"))
+                .andExpect(status().is2xxSuccessful());
+
+        mockMvc.perform(get(location))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.phenotypeGroup").value("RENAL"));
+    }
+
+    @Test
+    public void shouldDeletePhenotype() throws Exception {
+        String location = postTestPhenotype();
+
+        mockMvc.perform(delete(location))
+                .andExpect(status().is2xxSuccessful());
+
+        mockMvc.perform(get(location))
+                .andExpect(status().isNotFound());
+    }
+
+    private String postTestProperty() throws Exception {
+        String content = "{\"id\":\"CALL_RATE\"," +
+                "\"type\":\"FLOAT\"," +
+                "\"meaning\":\"CALL_RATE\"," +
+                "\"description\":\"calling rate\"}";
+
+        return postTestEntity("/properties", content);
+    }
+
+    @Test
+    public void shouldCreateProperty() throws Exception {
+        String location = postTestProperty();
+
+        assert location.contains("/properties/");
+    }
+
+    @Test
+    public void shouldRetrieveProperty() throws Exception {
+        String location = postTestProperty();
+
         mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
                 jsonPath("$.type").value("FLOAT")).andExpect(
                 jsonPath("$.meaning").value("CALL_RATE")).andExpect(
@@ -88,13 +170,8 @@ public class PropertyRegistryServiceApplicationTests {
     }
 
     @Test
-    public void shouldQueryEntity() throws Exception {
-        mockMvc.perform(post("/properties").content(
-                "{\"id\":\"CALL_RATE\"," +
-                        "\"type\":\"FLOAT\"," +
-                        "\"meaning\":\"CALL_RATE\"," +
-                        "\"description\":\"calling rate\"}")).andExpect(
-                status().isCreated());
+    public void shouldQueryProperties() throws Exception {
+        postTestProperty();
 
         mockMvc.perform(
                 get("/properties/search/findByType?type={type}", "FLOAT")).andExpect(
@@ -105,15 +182,8 @@ public class PropertyRegistryServiceApplicationTests {
     }
 
     @Test
-    public void shouldUpdateEntity() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post("/properties").content(
-                "{\"id\":\"CALL_RATE\"," +
-                        "\"type\":\"FLOAT\"," +
-                        "\"meaning\":\"CALL_RATE\"," +
-                        "\"description\":\"calling rate\"}")).andExpect(
-                status().isCreated()).andReturn();
-
-        String location = mvcResult.getResponse().getHeader("Location");
+    public void shouldUpdateProperty() throws Exception {
+        String location = postTestProperty();
 
         mockMvc.perform(put(location).content(
                 "{\"id\":\"CALL_RATE\"," +
@@ -129,15 +199,8 @@ public class PropertyRegistryServiceApplicationTests {
     }
 
     @Test
-    public void shouldPartiallyUpdateEntity() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post("/properties").content(
-                "{\"id\":\"CALL_RATE\"," +
-                        "\"type\":\"FLOAT\"," +
-                        "\"meaning\":\"CALL_RATE\"," +
-                        "\"description\":\"calling rate\"}")).andExpect(
-                status().isCreated()).andReturn();
-
-        String location = mvcResult.getResponse().getHeader("Location");
+    public void shouldPartiallyUpdateProperty() throws Exception {
+        String location = postTestProperty();
 
         mockMvc.perform(
                 patch(location).content("{\"type\": \"DOUBLE\"}")).andExpect(
@@ -150,18 +213,12 @@ public class PropertyRegistryServiceApplicationTests {
     }
 
     @Test
-    public void shouldDeleteEntity() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post("/properties").content(
-                "{\"id\":\"CALL_RATE\"," +
-                        "\"type\":\"FLOAT\"," +
-                        "\"meaning\":\"CALL_RATE\"," +
-                        "\"description\":\"calling rate\"}")).andExpect(
-                status().isCreated()).andReturn();
-
-        String location = mvcResult.getResponse().getHeader("Location");
+    public void shouldDeleteProperty() throws Exception {
+        String location = postTestProperty();
 
         mockMvc.perform(delete(location)).andExpect(status().isNoContent());
 
         mockMvc.perform(get(location)).andExpect(status().isNotFound());
     }
+
 }

@@ -78,7 +78,8 @@ public class SwaggerConfiguration {
                 .apiInfo(getApiInfo())
                 .pathMapping("/")
                 .tags(
-                        new Tag("Property Entity", "Property definition")
+                        new Tag("Property Entity", "Property definition"),
+                        new Tag("Phenotype Entity", "Phenotype definition")
                 )
                 .genericModelSubstitutes(ResponseEntity.class)
                 .alternateTypeRules(getSubstitutionRules())
