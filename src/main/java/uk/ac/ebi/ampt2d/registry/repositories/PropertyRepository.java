@@ -17,7 +17,7 @@
  */
 package uk.ac.ebi.ampt2d.registry.repositories;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import uk.ac.ebi.ampt2d.registry.entities.Property;
@@ -25,7 +25,7 @@ import uk.ac.ebi.ampt2d.registry.entities.Property;
 import java.util.List;
 
 @RepositoryRestResource
-public interface PropertyRepository extends CrudRepository<Property, String> {
+public interface PropertyRepository extends PagingAndSortingRepository<Property, String> {
 
     List<Property> findByType(@Param("type") Property.Type type);
 
