@@ -221,4 +221,26 @@ public class PropertyRegistryServiceApplicationTests {
         mockMvc.perform(get(location)).andExpect(status().isNotFound());
     }
 
+    @Test
+    public void testPaging() throws Exception {
+
+        String content1 = "{\"id\":\"CALL_RATE\"," +
+                "\"type\":\"FLOAT\"," +
+                "\"meaning\":\"CALL_RATE\"," +
+                "\"description\":\"calling rate\"}";
+        postTestEntity("/properties", content1);
+        String content2 = "{\"id\":\"MAF\"," +
+                "\"type\":\"FLOAT\"," +
+                "\"meaning\":\"MAF\"," +
+                "\"description\":\"MAF\"}";
+
+        postTestEntity("/properties", content2);
+
+        mockMvc.perform(get("/properties?size=1")).andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.properties.length()").value(1));
+        mockMvc.perform(get("/properties?size=2")).andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.properties.length()").value(2));
+
+    }
+
 }

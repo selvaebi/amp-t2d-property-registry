@@ -17,7 +17,7 @@
  */
 package uk.ac.ebi.ampt2d.registry.repositories;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import uk.ac.ebi.ampt2d.registry.entities.Phenotype;
@@ -25,7 +25,7 @@ import uk.ac.ebi.ampt2d.registry.entities.Phenotype;
 import java.util.List;
 
 @RepositoryRestResource
-public interface PhenotypeRepository extends CrudRepository<Phenotype, String> {
+public interface PhenotypeRepository extends PagingAndSortingRepository<Phenotype, String> {
 
     List<Phenotype> findByPhenotypeGroup(@Param("phenotypeGroup") Phenotype.Group group);
 
