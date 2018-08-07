@@ -46,7 +46,7 @@ pipeline {
       }
       steps {
         echo 'Deploying to Staging'
-        sh "curl --upload-file staging/target/amp-t2d-property-registry-*.war 'http://'${tomcatCredentials}'@'${stagingHost}':8080/manager/text/deploy?path=/ega/ampt2d/registry&update=true' | grep 'OK - Deployed application at context path '"
+        sh "curl --upload-file staging/target/amp-t2d-property-registry-*.war 'http://'${tomcatCredentials}'@'${stagingHost}':8080/manager/text/deploy?path=/ega/t2d/registry&update=true' | grep 'OK - Deployed application at context path '"
       }
     }
     stage('Deploy To FallBack And Production') {
