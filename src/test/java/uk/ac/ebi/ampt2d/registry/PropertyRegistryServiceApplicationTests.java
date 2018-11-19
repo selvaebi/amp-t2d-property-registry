@@ -38,12 +38,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(properties = "security.enabled=true")
 @AutoConfigureMockMvc
 public class PropertyRegistryServiceApplicationTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private OAuthHelper oAuthHelper;
 
     @Autowired
     private PhenotypeRepository phenotypeRepository;
@@ -66,7 +69,8 @@ public class PropertyRegistryServiceApplicationTests {
     }
 
     private String postTestEntity(String uri, String content) throws Exception {
-        MvcResult mvcResult = mockMvc.perform(post(uri).content(content))
+        MvcResult mvcResult = mockMvc.perform(post(uri).with(oAuthHelper.bearerToken("testEditor@gmail.com")).content
+                (content))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -90,7 +94,7 @@ public class PropertyRegistryServiceApplicationTests {
     public void shouldRetrievePhenotype() throws Exception {
         String location = postTestPhenotype();
 
-        mockMvc.perform(get(location))
+        mockMvc.perform(get(location).with(oAuthHelper.bearerToken("testEditor@gmail.com")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.phenotypeGroup").value("ANTHROPOMETRIC"));
     }
@@ -99,7 +103,8 @@ public class PropertyRegistryServiceApplicationTests {
     public void shouldQueryPhenotype() throws Exception {
         String location = postTestPhenotype();
 
-        mockMvc.perform(get("/phenotypes/search/findByPhenotypeGroup?phenotypeGroup=ANTHROPOMETRIC"))
+        mockMvc.perform(get("/phenotypes/search/findByPhenotypeGroup?phenotypeGroup=ANTHROPOMETRIC")
+                .with(oAuthHelper.bearerToken("testUser@gmail.com")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$..phenotypes").isArray())
                 .andExpect(jsonPath("$..phenotypes.length()").value(1))
@@ -110,11 +115,11 @@ public class PropertyRegistryServiceApplicationTests {
     public void shouldUpdatePhenotype() throws Exception {
         String location = postTestPhenotype();
 
-        mockMvc.perform(put(location)
+        mockMvc.perform(put(location).with(oAuthHelper.bearerToken("testEditor@gmail.com"))
                 .content("{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"RENAL\"}"))
                 .andExpect(status().is2xxSuccessful());
 
-        mockMvc.perform(get(location))
+        mockMvc.perform(get(location).with(oAuthHelper.bearerToken("testUser@gmail.com")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.phenotypeGroup").value("RENAL"));
     }
@@ -123,11 +128,11 @@ public class PropertyRegistryServiceApplicationTests {
     public void shouldPartiallyUpdatePhenotype() throws Exception {
         String location = postTestPhenotype();
 
-        mockMvc.perform(patch(location)
+        mockMvc.perform(patch(location).with(oAuthHelper.bearerToken("testEditor@gmail.com"))
                 .content("{\"phenotypeGroup\":\"RENAL\"}"))
                 .andExpect(status().is2xxSuccessful());
 
-        mockMvc.perform(get(location))
+        mockMvc.perform(get(location).with(oAuthHelper.bearerToken("testUser@gmail.com")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.phenotypeGroup").value("RENAL"));
     }
@@ -136,10 +141,10 @@ public class PropertyRegistryServiceApplicationTests {
     public void shouldDeletePhenotype() throws Exception {
         String location = postTestPhenotype();
 
-        mockMvc.perform(delete(location))
+        mockMvc.perform(delete(location).with(oAuthHelper.bearerToken("testEditor@gmail.com")))
                 .andExpect(status().is2xxSuccessful());
 
-        mockMvc.perform(get(location))
+        mockMvc.perform(get(location).with(oAuthHelper.bearerToken("testUser@gmail.com")))
                 .andExpect(status().isNotFound());
     }
 
@@ -163,10 +168,10 @@ public class PropertyRegistryServiceApplicationTests {
     public void shouldRetrieveProperty() throws Exception {
         String location = postTestProperty();
 
-        mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-                jsonPath("$.type").value("FLOAT")).andExpect(
-                jsonPath("$.meaning").value("CALL_RATE")).andExpect(
-                jsonPath("$.description").value("calling rate"));
+        mockMvc.perform(get(location).with(oAuthHelper.bearerToken("testUser@gmail.com"))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.type").value("FLOAT"))
+                .andExpect(jsonPath("$.meaning").value("CALL_RATE"))
+                .andExpect(jsonPath("$.description").value("calling rate"));
     }
 
     @Test
@@ -174,28 +179,29 @@ public class PropertyRegistryServiceApplicationTests {
         postTestProperty();
 
         mockMvc.perform(
-                get("/properties/search/findByType?type={type}", "FLOAT")).andExpect(
-                status().isOk()).andExpect(
-                jsonPath("$._embedded.properties[0].type").value("FLOAT")).andExpect(
-                jsonPath("$._embedded.properties[0].meaning").value("CALL_RATE")).andExpect(
-                jsonPath("$._embedded.properties[0].description").value("calling rate"));
+                get("/properties/search/findByType?type={type}", "FLOAT")
+                        .with(oAuthHelper.bearerToken("testUser@gmail.com"))).andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.properties[0].type").value("FLOAT"))
+                .andExpect(jsonPath("$._embedded.properties[0].meaning").value("CALL_RATE"))
+                .andExpect(jsonPath("$._embedded.properties[0].description").value("calling rate"));
     }
 
     @Test
     public void shouldUpdateProperty() throws Exception {
         String location = postTestProperty();
 
-        mockMvc.perform(put(location).content(
+        mockMvc.perform(put(location).with(oAuthHelper.bearerToken("testEditor@gmail.com")).content(
                 "{\"id\":\"CALL_RATE\"," +
                         "\"type\":\"DOUBLE\"," +
                         "\"meaning\":\"CALL_RATE\"," +
                         "\"description\":\"call rate\"}")).andExpect(
                 status().isNoContent());
 
-        mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-                jsonPath("$.type").value("DOUBLE")).andExpect(
-                jsonPath("$.meaning").value("CALL_RATE")).andExpect(
-                jsonPath("$.description").value("call rate"));
+        mockMvc.perform(get(location).with(oAuthHelper.bearerToken("testUser@gmail.com")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.type").value("DOUBLE"))
+                .andExpect(jsonPath("$.meaning").value("CALL_RATE"))
+                .andExpect(jsonPath("$.description").value("call rate"));
     }
 
     @Test
@@ -203,22 +209,26 @@ public class PropertyRegistryServiceApplicationTests {
         String location = postTestProperty();
 
         mockMvc.perform(
-                patch(location).content("{\"type\": \"DOUBLE\"}")).andExpect(
+                patch(location).with(oAuthHelper.bearerToken("testEditor@gmail.com")).content("{\"type\": " +
+                        "\"DOUBLE\"}")).andExpect(
                 status().isNoContent());
 
-        mockMvc.perform(get(location)).andExpect(status().isOk()).andExpect(
-                jsonPath("$.type").value("DOUBLE")).andExpect(
-                jsonPath("$.meaning").value("CALL_RATE")).andExpect(
-                jsonPath("$.description").value("calling rate"));
+        mockMvc.perform(get(location).with(oAuthHelper.bearerToken("testUser@gmail.com")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.type").value("DOUBLE"))
+                .andExpect(jsonPath("$.meaning").value("CALL_RATE"))
+                .andExpect(jsonPath("$.description").value("calling rate"));
     }
 
     @Test
     public void shouldDeleteProperty() throws Exception {
         String location = postTestProperty();
 
-        mockMvc.perform(delete(location)).andExpect(status().isNoContent());
+        mockMvc.perform(delete(location).with(oAuthHelper.bearerToken("testEditor@gmail.com")))
+                .andExpect(status().isNoContent());
 
-        mockMvc.perform(get(location)).andExpect(status().isNotFound());
+        mockMvc.perform(get(location).with(oAuthHelper.bearerToken("testUser@gmail.com")))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -236,11 +246,45 @@ public class PropertyRegistryServiceApplicationTests {
 
         postTestEntity("/properties", content2);
 
-        mockMvc.perform(get("/properties?size=1")).andExpect(status().isOk())
+        mockMvc.perform(get("/properties?size=1").with(oAuthHelper.bearerToken("testUser@gmail.com")))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.properties.length()").value(1));
-        mockMvc.perform(get("/properties?size=2")).andExpect(status().isOk())
+        mockMvc.perform(get("/properties?size=2").with(oAuthHelper.bearerToken("testUser@gmail.com")))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.properties.length()").value(2));
 
+    }
+
+    @Test
+    public void testAuthorization() throws Exception {
+        // Any url other than root and swagger is Secured
+        mockMvc.perform(get("/phenotypes")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/properties")).andExpect(status().isUnauthorized());
+
+        mockMvc.perform(get("/")).andExpect(status().isOk()); // Root is not secured
+        mockMvc.perform(get("/swagger-ui.html")).andExpect(status().isOk()); // Swagger is not secured
+
+        String content = "{\"id\":\"CALL_RATE\"," +
+                "\"type\":\"FLOAT\"," +
+                "\"meaning\":\"CALL_RATE\"," +
+                "\"description\":\"calling rate\"}";
+
+        //POST can be performed  by EDITOR or ADMIN only
+        mockMvc.perform(post("/properties").with(oAuthHelper.bearerToken("testUser@gmail.com"))
+                .content(content)).andExpect(status().isForbidden());
+        mockMvc.perform(post("/properties").with(oAuthHelper.bearerToken("testEditor@gmail.com"))
+                .content(content)).andExpect(status().isCreated());
+
+        //Change of Roles can be performed by ADMIN only
+        mockMvc.perform(put("/users/testUser@gmail.com")
+                .content("{\"role\": \"ROLE_EDITOR\"}").with(oAuthHelper.bearerToken("testEditor@gmail.com")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(put("/users/testUser@gmail.com")
+                .content("{\"role\": \"ROLE_EDITOR\"}").with(oAuthHelper.bearerToken("testAdmin@gmail.com")))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(post("/properties").with(oAuthHelper.bearerToken("testUser@gmail.com"))
+                .content(content)).andExpect(status().isCreated());
     }
 
 }
