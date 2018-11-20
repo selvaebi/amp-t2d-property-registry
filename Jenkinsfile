@@ -1,4 +1,7 @@
 pipeline {
+  triggers {
+      cron(env.BRANCH_NAME == 'master'? 'H 10 * * *' : '')
+  }
   agent {
     docker {
       image 'maven:3.5.2-jdk-8'
@@ -22,7 +25,7 @@ pipeline {
   stages {
     stage('Default Build pointing to Staging DB') {
       steps {
-        sh "mvn clean package -DskipTests -DbuildDirectory=staging/target -Dampt2d-property-registry-db.url=${stagingPostgresDbUrl} -Dampt2d-property-registry-db.username=${postgresDBUserName} -Dampt2d-property-registry-db.password=${postgresDBPassword}"
+        sh "mvn clean package -DbuildDirectory=staging/target -Dampt2d-property-registry-db.url=${stagingPostgresDbUrl} -Dampt2d-property-registry-db.username=${postgresDBUserName} -Dampt2d-property-registry-db.password=${postgresDBPassword}"
       }
     }
     stage('Build For FallBack And Production') {
@@ -46,7 +49,7 @@ pipeline {
       }
       steps {
         echo 'Deploying to Staging'
-        sh "curl --upload-file staging/target/amp-t2d-property-registry-*.war 'http://'${tomcatCredentials}'@'${stagingHost}':8080/manager/text/deploy?path=/registry&update=true' | grep 'OK - Deployed application at context path '"
+        sh "curl --upload-file staging/target/amp-t2d-property-registry-*.war 'http://'${tomcatCredentials}'@'${stagingHost}':8080/manager/text/deploy?path=/dev/registry&update=true' | grep 'OK - Deployed application at context path '"
       }
     }
     stage('Deploy To FallBack And Production') {
@@ -63,5 +66,18 @@ pipeline {
         archiveArtifacts artifacts: 'production/target/amp-t2d-property-registry-*.war' , fingerprint: true
       }
     }
+  }
+  post {
+    failure {
+       echo "Test failed"
+       mail(bcc: '',
+       body: "Run ${JOB_NAME}-#${BUILD_NUMBER} failed.\n\
+       To get more details, visit the build results page:${BUILD_URL}",
+       cc: '',
+       from: 'amp-dev@ebi.ac.uk',
+       replyTo: '',
+       subject: "${JOB_NAME} ${BUILD_NUMBER} failed",
+       to: 'amp-dev@ebi.ac.uk')
+     }
   }
 }
