@@ -9,7 +9,7 @@ pipeline {
   }
   environment {
     stagingPostgresDbUrl = credentials('STAGINGPROPERTYREGISTRYDBURL')
-    fallBackPostgresDbUrl = credentials('FALLBACKPROPERTYREGISTRYDBURL')
+    fallBackPostgresDbUrl = credentials('PRODUCTIONPROPERTYREGISTRYDBURL')
     productionPostgresDbUrl = credentials('PRODUCTIONPROPERTYREGISTRYDBURL')
     postgresDBUserName = credentials('POSTGRESDBUSERNAME')
     postgresDBPassword = credentials('POSTGRESDBPASSWORD')
