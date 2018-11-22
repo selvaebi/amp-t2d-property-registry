@@ -261,21 +261,52 @@ public class PropertyRegistryServiceApplicationTests {
         mockMvc.perform(get("/phenotypes")).andExpect(status().isUnauthorized());
         mockMvc.perform(get("/properties")).andExpect(status().isUnauthorized());
 
-        mockMvc.perform(get("/")).andExpect(status().isOk()); // Root is not secured
-        mockMvc.perform(get("/swagger-ui.html")).andExpect(status().isOk()); // Swagger is not secured
+        //AUTH_WHITELIST URLs not secured
+        mockMvc.perform(get("/")).andExpect(status().isOk());
+        mockMvc.perform(get("/swagger-ui.html")).andExpect(status().isOk());
+        mockMvc.perform(get("/v2/api-docs")).andExpect(status().isOk());
+        mockMvc.perform(get("/swagger-resources/")).andExpect(status().isOk());
+        mockMvc.perform(get("/webjars/springfox-swagger-ui/fonts/open-sans-v15-latin-regular.woff2")).andExpect(status().isOk());
 
-        String content = "{\"id\":\"CALL_RATE\"," +
+        String propertyContent = "{\"id\":\"CALL_RATE\"," +
                 "\"type\":\"FLOAT\"," +
                 "\"meaning\":\"CALL_RATE\"," +
                 "\"description\":\"calling rate\"}";
 
-        //POST can be performed  by EDITOR or ADMIN only
-        mockMvc.perform(post("/properties").with(oAuthHelper.bearerToken("testUser@gmail.com"))
-                .content(content)).andExpect(status().isForbidden());
-        mockMvc.perform(post("/properties").with(oAuthHelper.bearerToken("testEditor@gmail.com"))
-                .content(content)).andExpect(status().isCreated());
+        String phenotypeContent = "{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"ANTHROPOMETRIC\"}";
 
-        //Change of Roles can be performed by ADMIN only
+        //POST can be performed by EDITOR or ADMIN only
+        mockMvc.perform(post("/properties").with(oAuthHelper.bearerToken("testUser@gmail.com"))
+                .content(propertyContent)).andExpect(status().isForbidden());
+        mockMvc.perform(post("/properties").with(oAuthHelper.bearerToken("testEditor@gmail.com"))
+                .content(propertyContent)).andExpect(status().isCreated());
+        mockMvc.perform(post("/phenotypes").with(oAuthHelper.bearerToken("testEditor@gmail.com"))
+                .content(phenotypeContent)).andExpect(status().isCreated());
+
+        //GET can be performed by any authenticated user
+        mockMvc.perform(get("/properties").with(oAuthHelper.bearerToken("testUser@gmail.com")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.properties.length()").value(1));
+        mockMvc.perform(get("/phenotypes").with(oAuthHelper.bearerToken("testEditor@gmail.com")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.phenotypes.length()").value(1));
+        mockMvc.perform(get("/phenotypes/BMI").with(oAuthHelper.bearerToken("testAdmin@gmail.com")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("BMI"));
+
+        //PUT/PATCH/DELETE can be performed by EDITOR or ADMIN only
+        mockMvc.perform(patch("/phenotypes/BMI").with(oAuthHelper.bearerToken("testUser@gmail.com"))
+                .content("{\"phenotypeGroup\": \"GLYCEMIC\"}")).andExpect(status().isForbidden());
+        mockMvc.perform(patch("/phenotypes/BMI").with(oAuthHelper.bearerToken("testEditor@gmail.com"))
+                .content("{\"phenotypeGroup\": \"GLYCEMIC\"}")).andExpect(status().isNoContent());
+        mockMvc.perform(put("/phenotypes/BMI").with(oAuthHelper.bearerToken("testAdmin@gmail.com"))
+                .content("{\"phenotypeGroup\": \"GLYCEMIC\"}")).andExpect(status().isNoContent());
+        mockMvc.perform(delete("/properties/CALL_RATE").with(oAuthHelper.bearerToken("testUser@gmail.com")))
+               .andExpect(status().isForbidden());
+        mockMvc.perform(delete("/properties/CALL_RATE").with(oAuthHelper.bearerToken("testEditor@gmail.com")))
+                .andExpect(status().isNoContent());
+
+        //Change of Role can be performed by ADMIN only
         mockMvc.perform(put("/users/testUser@gmail.com")
                 .content("{\"role\": \"ROLE_EDITOR\"}").with(oAuthHelper.bearerToken("testEditor@gmail.com")))
                 .andExpect(status().isForbidden());
@@ -284,7 +315,7 @@ public class PropertyRegistryServiceApplicationTests {
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(post("/properties").with(oAuthHelper.bearerToken("testUser@gmail.com"))
-                .content(content)).andExpect(status().isCreated());
+                .content(propertyContent)).andExpect(status().isCreated());
     }
 
 }

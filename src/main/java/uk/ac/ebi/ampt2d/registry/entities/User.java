@@ -27,7 +27,7 @@ import javax.persistence.Id;
 @Entity
 public class User {
 
-    public enum Roles {
+    public enum Role {
 
         ROLE_USER,
 
@@ -41,12 +41,12 @@ public class User {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    private Roles role;
+    private Role role;
 
     public User() {
     }
 
-    public User(String email, Roles role) {
+    public User(String email, Role role) {
         this.email = email;
         this.role = role;
     }
@@ -59,11 +59,11 @@ public class User {
         this.email = email;
     }
 
-    public Roles getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(Roles role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 }

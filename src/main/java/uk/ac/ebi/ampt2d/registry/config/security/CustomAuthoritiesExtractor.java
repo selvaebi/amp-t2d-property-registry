@@ -40,9 +40,9 @@ public class CustomAuthoritiesExtractor implements AuthoritiesExtractor {
         String email = (String) map.get("email");
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            user = new User(email, User.Roles.ROLE_USER);
+            user = new User(email, User.Role.ROLE_USER);
             userRepository.save(user);
-            return Arrays.asList(new SimpleGrantedAuthority(User.Roles.ROLE_USER.name()));
+            return Arrays.asList(new SimpleGrantedAuthority(User.Role.ROLE_USER.name()));
         }
         return Arrays.asList(new SimpleGrantedAuthority(user.getRole().toString()));
     }
