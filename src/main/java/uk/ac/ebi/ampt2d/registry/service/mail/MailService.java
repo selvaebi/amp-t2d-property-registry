@@ -29,6 +29,9 @@ public class MailService {
     @Autowired
     private JavaMailSender javaMailSender;
 
+    @Value("${mail.notify:false}")
+    private Boolean nofify;
+
     @Value("${mail.to}")
     private String to;
 
@@ -39,11 +42,13 @@ public class MailService {
     private String subject;
 
     public void send(String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setFrom(from);
-        message.setSubject(subject);
-        message.setText(text);
-        javaMailSender.send(message);
+        if (nofify == true) {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(to);
+            message.setFrom(from);
+            message.setSubject(subject);
+            message.setText(text);
+            javaMailSender.send(message);
+        }
     }
 }
