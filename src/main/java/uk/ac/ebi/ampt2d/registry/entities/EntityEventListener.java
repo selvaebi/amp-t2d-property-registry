@@ -33,21 +33,21 @@ public class EntityEventListener {
     }
 
     @PostPersist
-    public void onPersistEntity(EntityIdentifier entity) {
+    public void onPersistEntity(IdentifiableEntity entity) {
         sendNotification(entity, Event.CREATED);
     }
 
     @PostUpdate
-    public void onUpdateEntity(EntityIdentifier entity) {
+    public void onUpdateEntity(IdentifiableEntity entity) {
         sendNotification(entity, Event.UPDATED);
     }
 
     @PostRemove
-    public void onRemoveEntity(EntityIdentifier entity) {
+    public void onRemoveEntity(IdentifiableEntity entity) {
         sendNotification(entity, Event.REMOVED);
     }
 
-    private void sendNotification(EntityIdentifier entity, Event event) {
+    private void sendNotification(IdentifiableEntity entity, Event event) {
         BeanUtil.getBean(MailService.class).send(entity.getClass().getSimpleName() + " " + entity.getId() + " " + event);
     }
 

@@ -36,7 +36,7 @@ import java.time.ZonedDateTime;
 
 @Entity
 @EntityListeners({AuditingEntityListener.class,EntityEventListener.class})
-public class Property implements EntityIdentifier<String>{
+public class Property implements IdentifiableEntity<String> {
 
     public enum Type {
 

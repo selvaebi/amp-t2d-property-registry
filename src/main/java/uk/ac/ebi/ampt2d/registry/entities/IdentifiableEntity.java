@@ -17,7 +17,7 @@
  */
 package uk.ac.ebi.ampt2d.registry.entities;
 
-public interface EntityIdentifier<ENTITY_ID> {
+public interface IdentifiableEntity<ENTITY_ID> {
 
     ENTITY_ID getId();
 
