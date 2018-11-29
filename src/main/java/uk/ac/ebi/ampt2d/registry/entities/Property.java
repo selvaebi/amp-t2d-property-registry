@@ -92,7 +92,7 @@ public class Property {
     @JsonProperty
     @NotNull
     @NotBlank
-    @Column(nullable = false,columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @CreatedDate
