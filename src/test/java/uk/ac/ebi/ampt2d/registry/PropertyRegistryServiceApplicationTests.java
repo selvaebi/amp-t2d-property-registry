@@ -35,7 +35,6 @@ import uk.ac.ebi.ampt2d.registry.service.mail.MailService;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -45,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {"security.enabled=true","spring.jpa.hibernate.ddl-auto=none"})
+@SpringBootTest(properties = {"security.enabled=true", "spring.jpa.hibernate.ddl-auto=none"})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = AFTER_CLASS)
 public class PropertyRegistryServiceApplicationTests {
@@ -314,7 +313,7 @@ public class PropertyRegistryServiceApplicationTests {
         mockMvc.perform(put("/phenotypes/BMI").with(oAuthHelper.bearerToken("testAdmin@gmail.com"))
                 .content("{\"phenotypeGroup\": \"GLYCEMIC\"}")).andExpect(status().isNoContent());
         mockMvc.perform(delete("/properties/CALL_RATE").with(oAuthHelper.bearerToken("testUser@gmail.com")))
-               .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden());
         mockMvc.perform(delete("/properties/CALL_RATE").with(oAuthHelper.bearerToken("testEditor@gmail.com")))
                 .andExpect(status().isNoContent());
 
