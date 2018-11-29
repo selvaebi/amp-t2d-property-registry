@@ -45,7 +45,7 @@ public class RegistryUpdateNotificationFailure {
         String phenotypeContent = "{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"ANTHROPOMETRIC\"}";
         mockMvc.perform(post("/phenotypes").content(phenotypeContent))
                 .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Mail send exception, please contact amp-dev@ebi.ac.uk"));
+                .andExpect(content().string("An automated email could not be sent, please contact user@domain"));
     }
 
 }

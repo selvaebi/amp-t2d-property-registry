@@ -17,6 +17,7 @@
  */
 package uk.ac.ebi.ampt2d.registry.exceptionhandling;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
@@ -32,12 +33,15 @@ public class ExceptionHandlers {
 
     private static final Logger exceptionLogger = Logger.getLogger(ExceptionHandlers.class.getSimpleName());
 
+    @Value("${mail.from}")
+    private String mailFrom;
+
     @ExceptionHandler(value = TransactionSystemException.class)
     public ResponseEntity<String> handleMailSendException(TransactionSystemException ex) {
         if (ex.getOriginalException().getCause().getClass().equals(MailSendException.class)) {
             exceptionLogger.log(Level.SEVERE, ex.getOriginalException().getCause().getMessage());
-            return new ResponseEntity("Mail send exception, please contact amp-dev@ebi.ac.uk", HttpStatus
-                    .INTERNAL_SERVER_ERROR);
+            return new ResponseEntity("An automated email could not be sent, please contact " + mailFrom,
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         throw ex;
     }
