@@ -34,7 +34,7 @@ import javax.validation.constraints.Size;
 import java.time.ZonedDateTime;
 
 @Entity
-@EntityListeners({AuditingEntityListener.class,EntityEventListener.class})
+@EntityListeners({AuditingEntityListener.class, EntityEventListener.class})
 public class Phenotype implements IdentifiableEntity<String> {
 
     public enum Group {
