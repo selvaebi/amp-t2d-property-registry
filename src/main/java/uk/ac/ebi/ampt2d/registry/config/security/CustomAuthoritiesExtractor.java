@@ -38,12 +38,12 @@ public class CustomAuthoritiesExtractor implements AuthoritiesExtractor {
     @Override
     public List<GrantedAuthority> extractAuthorities(Map<String, Object> map) {
         String email = (String) map.get("email");
-        RegistryUser user = registryUserRepository.findByEmail(email);
-        if (user == null) {
-            user = new RegistryUser(email, RegistryUser.Role.ROLE_USER);
-            registryUserRepository.save(user);
+        RegistryUser registryUser = registryUserRepository.findByEmail(email);
+        if (registryUser == null) {
+            registryUser = new RegistryUser(email, RegistryUser.Role.ROLE_USER);
+            registryUserRepository.save(registryUser);
             return Arrays.asList(new SimpleGrantedAuthority(RegistryUser.Role.ROLE_USER.name()));
         }
-        return Arrays.asList(new SimpleGrantedAuthority(user.getRole().toString()));
+        return Arrays.asList(new SimpleGrantedAuthority(registryUser.getRole().toString()));
     }
 }

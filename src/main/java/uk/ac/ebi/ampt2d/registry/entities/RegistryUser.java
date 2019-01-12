@@ -25,7 +25,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 
 /*
- User is a reserved word in PostgreSQL. Hence defining a new name RegistryUser
+ User is a reserved word in PostgreSQL. Hence using class name RegistryUser
  */
 @Entity
 public class RegistryUser {
