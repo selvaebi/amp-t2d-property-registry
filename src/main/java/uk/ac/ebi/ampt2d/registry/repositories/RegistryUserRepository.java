@@ -20,10 +20,10 @@ package uk.ac.ebi.ampt2d.registry.repositories;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import uk.ac.ebi.ampt2d.registry.entities.User;
+import uk.ac.ebi.ampt2d.registry.entities.RegistryUser;
 
 @Repository
-public interface UserRepository extends PagingAndSortingRepository<User, String> {
+public interface RegistryUserRepository extends PagingAndSortingRepository<RegistryUser, String> {
 
-    User findByEmail(@Param("email") String email);
+    RegistryUser findByEmail(@Param("email") String email);
 }

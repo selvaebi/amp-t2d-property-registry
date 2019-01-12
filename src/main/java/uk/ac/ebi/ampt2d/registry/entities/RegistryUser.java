@@ -27,8 +27,8 @@ import javax.persistence.Id;
 /*
  User is a reserved word in PostgreSQL. Hence defining a new name RegistryUser
  */
-@Entity(name = "RegistryUser")
-public class User {
+@Entity
+public class RegistryUser {
 
     public enum Role {
 
@@ -46,10 +46,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    public User() {
+    public RegistryUser() {
     }
 
-    public User(String email, Role role) {
+    public RegistryUser(String email, Role role) {
         this.email = email;
         this.role = role;
     }

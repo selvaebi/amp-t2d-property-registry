@@ -272,7 +272,7 @@ public class PropertyRegistryServiceApplicationTests {
         mockMvc.perform(get("/phenotypes")).andExpect(status().isUnauthorized());
         mockMvc.perform(get("/properties")).andExpect(status().isUnauthorized());
 
-        //AUTH_WHITELIST URLs not secured
+        // AUTH_WHITELIST URLs not secured
         mockMvc.perform(get("/")).andExpect(status().isOk());
         mockMvc.perform(get("/swagger-ui.html")).andExpect(status().isOk());
         mockMvc.perform(get("/v2/api-docs")).andExpect(status().isOk());
@@ -318,10 +318,10 @@ public class PropertyRegistryServiceApplicationTests {
                 .andExpect(status().isNoContent());
 
         //Change of Role can be performed by ADMIN only
-        mockMvc.perform(put("/users/testUser@gmail.com")
+        mockMvc.perform(put("/registryUsers/testUser@gmail.com")
                 .content("{\"role\": \"ROLE_EDITOR\"}").with(oAuthHelper.bearerToken("testEditor@gmail.com")))
                 .andExpect(status().isForbidden());
-        mockMvc.perform(put("/users/testUser@gmail.com")
+        mockMvc.perform(put("/registryUsers/testUser@gmail.com")
                 .content("{\"role\": \"ROLE_EDITOR\"}").with(oAuthHelper.bearerToken("testAdmin@gmail.com")))
                 .andExpect(status().isNoContent());
 
