@@ -318,10 +318,10 @@ public class PropertyRegistryServiceApplicationTests {
                 .andExpect(status().isNoContent());
 
         //Change of Role can be performed by ADMIN only
-        mockMvc.perform(put("/registryUsers/testUser@gmail.com")
+        mockMvc.perform(put("/users/testUser@gmail.com")
                 .content("{\"role\": \"ROLE_EDITOR\"}").with(oAuthHelper.bearerToken("testEditor@gmail.com")))
                 .andExpect(status().isForbidden());
-        mockMvc.perform(put("/registryUsers/testUser@gmail.com")
+        mockMvc.perform(put("/users/testUser@gmail.com")
                 .content("{\"role\": \"ROLE_EDITOR\"}").with(oAuthHelper.bearerToken("testAdmin@gmail.com")))
                 .andExpect(status().isNoContent());
 
