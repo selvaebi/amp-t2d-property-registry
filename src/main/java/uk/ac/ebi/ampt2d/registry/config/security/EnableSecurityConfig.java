@@ -17,7 +17,6 @@
  */
 package uk.ac.ebi.ampt2d.registry.config.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.AuthoritiesExtractor;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +25,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
-import uk.ac.ebi.ampt2d.registry.repositories.UserRepository;
+import uk.ac.ebi.ampt2d.registry.repositories.RegistryUserRepository;
 
 @ConditionalOnProperty(value = "security.enabled", havingValue = "true")
 @Configuration
@@ -57,7 +56,7 @@ public class EnableSecurityConfig extends ResourceServerConfigurerAdapter {
     }
 
     @Bean
-    public AuthoritiesExtractor authoritiesExtractor(UserRepository userRepository) {
-        return new CustomAuthoritiesExtractor(userRepository);
+    public AuthoritiesExtractor authoritiesExtractor(RegistryUserRepository registryUserRepository) {
+        return new CustomAuthoritiesExtractor(registryUserRepository);
     }
 }

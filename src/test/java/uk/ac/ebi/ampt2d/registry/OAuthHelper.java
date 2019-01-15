@@ -35,7 +35,7 @@ import org.springframework.security.oauth2.provider.token.AuthorizationServerTok
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import uk.ac.ebi.ampt2d.registry.config.security.CustomAuthoritiesExtractor;
-import uk.ac.ebi.ampt2d.registry.repositories.UserRepository;
+import uk.ac.ebi.ampt2d.registry.repositories.RegistryUserRepository;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -55,7 +55,7 @@ public class OAuthHelper extends AuthorizationServerConfigurerAdapter {
     private ClientDetailsService clientDetailsService;
 
     @Autowired
-    private UserRepository userRepository;
+    private RegistryUserRepository registryUserRepository;
 
     public RequestPostProcessor bearerToken(final String clientid) {
         return mockRequest -> {
@@ -69,7 +69,7 @@ public class OAuthHelper extends AuthorizationServerConfigurerAdapter {
         ClientDetails client = clientDetailsService.loadClientByClientId(clientId);
         Map<String, Object> clientEmailMap = new HashMap<>();
         clientEmailMap.put("email", clientId);
-        Collection<GrantedAuthority> authorities = authoritiesExtractor(userRepository).extractAuthorities(clientEmailMap);
+        Collection<GrantedAuthority> authorities = authoritiesExtractor(registryUserRepository).extractAuthorities(clientEmailMap);
         Set<String> resourceIds = client.getResourceIds();
         Set<String> scopes = client.getScope();
 
@@ -99,7 +99,7 @@ public class OAuthHelper extends AuthorizationServerConfigurerAdapter {
     }
 
     @Bean
-    public AuthoritiesExtractor authoritiesExtractor(UserRepository userRepository) {
-        return new CustomAuthoritiesExtractor(userRepository);
+    public AuthoritiesExtractor authoritiesExtractor(RegistryUserRepository registryUserRepository) {
+        return new CustomAuthoritiesExtractor(registryUserRepository);
     }
 }

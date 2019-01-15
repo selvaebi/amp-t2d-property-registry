@@ -20,8 +20,8 @@ package uk.ac.ebi.ampt2d.registry.config.security;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.AuthoritiesExtractor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import uk.ac.ebi.ampt2d.registry.entities.User;
-import uk.ac.ebi.ampt2d.registry.repositories.UserRepository;
+import uk.ac.ebi.ampt2d.registry.entities.RegistryUser;
+import uk.ac.ebi.ampt2d.registry.repositories.RegistryUserRepository;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,21 +29,21 @@ import java.util.Map;
 
 public class CustomAuthoritiesExtractor implements AuthoritiesExtractor {
 
-    private UserRepository userRepository;
+    private RegistryUserRepository registryUserRepository;
 
-    public CustomAuthoritiesExtractor(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public CustomAuthoritiesExtractor(RegistryUserRepository registryUserRepository) {
+        this.registryUserRepository = registryUserRepository;
     }
 
     @Override
     public List<GrantedAuthority> extractAuthorities(Map<String, Object> map) {
         String email = (String) map.get("email");
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            user = new User(email, User.Role.ROLE_USER);
-            userRepository.save(user);
-            return Arrays.asList(new SimpleGrantedAuthority(User.Role.ROLE_USER.name()));
+        RegistryUser registryUser = registryUserRepository.findByEmail(email);
+        if (registryUser == null) {
+            registryUser = new RegistryUser(email, RegistryUser.Role.ROLE_USER);
+            registryUserRepository.save(registryUser);
+            return Arrays.asList(new SimpleGrantedAuthority(RegistryUser.Role.ROLE_USER.name()));
         }
-        return Arrays.asList(new SimpleGrantedAuthority(user.getRole().toString()));
+        return Arrays.asList(new SimpleGrantedAuthority(registryUser.getRole().toString()));
     }
 }
