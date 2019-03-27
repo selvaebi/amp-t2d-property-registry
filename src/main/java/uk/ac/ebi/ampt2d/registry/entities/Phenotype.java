@@ -40,7 +40,6 @@ import java.time.ZonedDateTime;
 public class Phenotype implements IdentifiableEntity<String> {
 
     public enum Group {
-
         ANTHROPOMETRIC,
         CARDIOVASCULAR,
         GLYCEMIC,
@@ -50,7 +49,6 @@ public class Phenotype implements IdentifiableEntity<String> {
     }
 
     public enum Type {
-
         DICHOTOMOUS,
         MULTICHOTOMOUS,
         CONTINUOUS
