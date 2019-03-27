@@ -21,13 +21,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import uk.ac.ebi.ampt2d.registry.entities.Phenotype;
+import uk.ac.ebi.ampt2d.registry.entities.Property;
 import uk.ac.ebi.ampt2d.registry.repositories.PhenotypeRepository;
 import uk.ac.ebi.ampt2d.registry.repositories.PropertyRepository;
 import uk.ac.ebi.ampt2d.registry.service.mail.MailService;
@@ -44,8 +48,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {"security.enabled=true", "spring.jpa.hibernate.ddl-auto=none"})
+@SpringBootTest(properties = {"security.enabled=true", "spring.datasource.data=classpath:data.sql"})
 @AutoConfigureMockMvc
+@AutoConfigureJsonTesters
 @DirtiesContext(classMode = AFTER_CLASS)
 public class PropertyRegistryServiceApplicationTests {
 
@@ -60,6 +65,12 @@ public class PropertyRegistryServiceApplicationTests {
 
     @Autowired
     private PropertyRepository propertyRepository;
+
+    @Autowired
+    private JacksonTester<Phenotype> phenotypeJacksonTester;
+
+    @Autowired
+    private JacksonTester<Property> propertyJacksonTester;
 
     @MockBean
     private MailService mailService;
@@ -89,9 +100,9 @@ public class PropertyRegistryServiceApplicationTests {
     }
 
     private String postTestPhenotype() throws Exception {
-        String content = "{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"ANTHROPOMETRIC\"}";
-
-        return postTestEntity("/phenotypes", content);
+        Phenotype phenotype = new Phenotype("BMI", Phenotype.Group.ANTHROPOMETRIC, "Body Mass Index",
+                Phenotype.Type.CONTINUOUS, "nn.nn");
+        return postTestEntity("/phenotypes", phenotypeJacksonTester.write(phenotype).getJson());
     }
 
     @Test
@@ -126,7 +137,7 @@ public class PropertyRegistryServiceApplicationTests {
     public void shouldUpdatePhenotype() throws Exception {
         String location = postTestPhenotype();
 
-        mockMvc.perform(put(location).with(oAuthHelper.bearerToken("testEditor@gmail.com"))
+        mockMvc.perform(patch(location).with(oAuthHelper.bearerToken("testEditor@gmail.com"))
                 .content("{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"RENAL\"}"))
                 .andExpect(status().is2xxSuccessful());
 
@@ -160,12 +171,9 @@ public class PropertyRegistryServiceApplicationTests {
     }
 
     private String postTestProperty() throws Exception {
-        String content = "{\"id\":\"CALL_RATE\"," +
-                "\"type\":\"FLOAT\"," +
-                "\"meaning\":\"CALL_RATE\"," +
-                "\"description\":\"calling rate\"}";
+        Property property = new Property("CALL_RATE", Property.Type.FLOAT, Property.Meaning.CALL_RATE, "calling rate");
 
-        return postTestEntity("/properties", content);
+        return postTestEntity("/properties", propertyJacksonTester.write(property).getJson());
     }
 
     @Test
@@ -201,21 +209,20 @@ public class PropertyRegistryServiceApplicationTests {
     public void shouldUpdateProperty() throws Exception {
         String location = postTestProperty();
 
-        mockMvc.perform(put(location).with(oAuthHelper.bearerToken("testEditor@gmail.com")).content(
-                "{\"id\":\"CALL_RATE\"," +
-                        "\"type\":\"DOUBLE\"," +
-                        "\"meaning\":\"CALL_RATE\"," +
-                        "\"description\":\"call rate\"}")).andExpect(
-                status().isNoContent());
+        Property property = new Property("CALL_RATE", Property.Type.DOUBLE, Property.Meaning.CALL_RATE, "calling rate");
+
+        mockMvc.perform(put(location).with(oAuthHelper.bearerToken("testEditor@gmail.com"))
+                .content(propertyJacksonTester.write(property).getJson())).andExpect(status().isNoContent());
 
         mockMvc.perform(get(location).with(oAuthHelper.bearerToken("testUser@gmail.com")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.type").value("DOUBLE"))
                 .andExpect(jsonPath("$.meaning").value("CALL_RATE"))
-                .andExpect(jsonPath("$.description").value("call rate"));
+                .andExpect(jsonPath("$.description").value("calling rate"));
     }
 
     @Test
+
     public void shouldPartiallyUpdateProperty() throws Exception {
         String location = postTestProperty();
 
@@ -245,17 +252,12 @@ public class PropertyRegistryServiceApplicationTests {
     @Test
     public void testPaging() throws Exception {
 
-        String content1 = "{\"id\":\"CALL_RATE\"," +
-                "\"type\":\"FLOAT\"," +
-                "\"meaning\":\"CALL_RATE\"," +
-                "\"description\":\"calling rate\"}";
-        postTestEntity("/properties", content1);
-        String content2 = "{\"id\":\"MAF\"," +
-                "\"type\":\"FLOAT\"," +
-                "\"meaning\":\"MAF\"," +
-                "\"description\":\"MAF\"}";
+        Property property1 = new Property("CALL_RATE", Property.Type.DOUBLE, Property.Meaning.CALL_RATE, "calling rate");
+        Property property2 = new Property("MAF", Property.Type.FLOAT, Property.Meaning.MAF, "MAF");
 
-        postTestEntity("/properties", content2);
+        postTestEntity("/properties", propertyJacksonTester.write(property1).getJson());
+
+        postTestEntity("/properties", propertyJacksonTester.write(property2).getJson());
 
         mockMvc.perform(get("/properties?size=1").with(oAuthHelper.bearerToken("testUser@gmail.com")))
                 .andExpect(status().isOk())
@@ -279,12 +281,14 @@ public class PropertyRegistryServiceApplicationTests {
         mockMvc.perform(get("/swagger-resources/")).andExpect(status().isOk());
         mockMvc.perform(get("/webjars/springfox-swagger-ui/fonts/open-sans-v15-latin-regular.woff2")).andExpect(status().isOk());
 
-        String propertyContent = "{\"id\":\"CALL_RATE\"," +
-                "\"type\":\"FLOAT\"," +
-                "\"meaning\":\"CALL_RATE\"," +
-                "\"description\":\"calling rate\"}";
+        Property property = new Property("CALL_RATE", Property.Type.DOUBLE, Property.Meaning.CALL_RATE, "calling rate");
+        Phenotype phenotype1 = new Phenotype("BMI", Phenotype.Group.ANTHROPOMETRIC, "Body Mass Index",
+                Phenotype.Type.CONTINUOUS, "nn.nn");
+        Phenotype phenotype2 = new Phenotype("BMI", Phenotype.Group.RENAL, "Body Mass Index",
+                Phenotype.Type.CONTINUOUS, "nn.nn");
 
-        String phenotypeContent = "{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"ANTHROPOMETRIC\"}";
+        String propertyContent = propertyJacksonTester.write(property).getJson();
+        String phenotypeContent = phenotypeJacksonTester.write(phenotype1).getJson();
 
         //POST can be performed by EDITOR or ADMIN only
         mockMvc.perform(post("/properties").with(oAuthHelper.bearerToken("testUser@gmail.com"))
@@ -311,7 +315,7 @@ public class PropertyRegistryServiceApplicationTests {
         mockMvc.perform(patch("/phenotypes/BMI").with(oAuthHelper.bearerToken("testEditor@gmail.com"))
                 .content("{\"phenotypeGroup\": \"GLYCEMIC\"}")).andExpect(status().isNoContent());
         mockMvc.perform(put("/phenotypes/BMI").with(oAuthHelper.bearerToken("testAdmin@gmail.com"))
-                .content("{\"phenotypeGroup\": \"GLYCEMIC\"}")).andExpect(status().isNoContent());
+                .content(phenotypeJacksonTester.write(phenotype2).getJson())).andExpect(status().isNoContent());
         mockMvc.perform(delete("/properties/CALL_RATE").with(oAuthHelper.bearerToken("testUser@gmail.com")))
                 .andExpect(status().isForbidden());
         mockMvc.perform(delete("/properties/CALL_RATE").with(oAuthHelper.bearerToken("testEditor@gmail.com")))

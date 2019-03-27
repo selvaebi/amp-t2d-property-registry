@@ -25,6 +25,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
@@ -97,10 +98,22 @@ public class Property implements IdentifiableEntity<String> {
 
     @CreatedDate
     @Column(updatable = false)
+    @Convert(converter = ZonedDateAttributeConverter.class)
     private ZonedDateTime createdDate;
 
     @LastModifiedDate
+    @Convert(converter = ZonedDateAttributeConverter.class)
     private ZonedDateTime lastModifiedDate;
+
+    public Property() {
+    }
+
+    public Property(String id, Type type, Meaning meaning, String description) {
+        this.id = id;
+        this.type = type;
+        this.meaning = meaning;
+        this.description = description;
+    }
 
     public String getId() {
         return id;

@@ -19,11 +19,13 @@ package uk.ac.ebi.ampt2d.registry.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
@@ -47,7 +49,14 @@ public class Phenotype implements IdentifiableEntity<String> {
         HEPATIC
     }
 
-    @ApiModelProperty(position = 1)
+    public enum Type {
+
+        DICHOTOMOUS,
+        MULTICHOTOMOUS,
+        CONTINUOUS
+    }
+
+    @ApiModelProperty(position = 1, required = true)
     @JsonProperty
     @NotNull
     @Size(min = 1, max = 255)
@@ -55,19 +64,52 @@ public class Phenotype implements IdentifiableEntity<String> {
     @Column(nullable = false, unique = true, updatable = false)
     private String id;
 
-    @ApiModelProperty(position = 3)
+    @ApiModelProperty(position = 2, required = true)
     @JsonProperty
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Group phenotypeGroup;
 
+    @ApiModelProperty(position = 3, required = true)
+    @NotNull
+    @NotBlank
+    @JsonProperty
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String description;
+
+    @ApiModelProperty(position = 4, required = true)
+    @JsonProperty
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Type type;
+
+    @ApiModelProperty(position = 5, required = true)
+    @JsonProperty
+    @NotNull
+    @Column(nullable = false)
+    private String allowedValues;
+
     @CreatedDate
     @Column(updatable = false)
+    @Convert(converter = ZonedDateAttributeConverter.class)
     private ZonedDateTime createdDate;
 
     @LastModifiedDate
+    @Convert(converter = ZonedDateAttributeConverter.class)
     private ZonedDateTime lastModifiedDate;
+
+    public Phenotype() {
+    }
+
+    public Phenotype(String id, Group phenotypeGroup, String description, Type type, String allowedValues) {
+        this.id = id;
+        this.phenotypeGroup = phenotypeGroup;
+        this.description = description;
+        this.type = type;
+        this.allowedValues = allowedValues;
+    }
 
     public String getId() {
         return id;
