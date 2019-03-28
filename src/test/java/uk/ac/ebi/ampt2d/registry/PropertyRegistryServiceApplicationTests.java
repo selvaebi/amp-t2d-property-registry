@@ -48,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {"security.enabled=true", "spring.datasource.data=classpath:data.sql"})
+@SpringBootTest(properties = {"security.enabled=true", "spring.jpa.hibernate.ddl-auto=none"})
 @AutoConfigureMockMvc
 @AutoConfigureJsonTesters
 @DirtiesContext(classMode = AFTER_CLASS)
