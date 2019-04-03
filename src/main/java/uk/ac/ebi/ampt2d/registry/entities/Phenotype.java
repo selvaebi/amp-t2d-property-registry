@@ -30,9 +30,11 @@ import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 @EntityListeners({AuditingEntityListener.class, EntityEventListener.class})
@@ -90,10 +92,12 @@ public class Phenotype implements IdentifiableEntity<String> {
 
     @CreatedDate
     @Column(updatable = false)
-    private Timestamp createdDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdDate;
 
     @LastModifiedDate
-    private Timestamp lastModifiedDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastModifiedDate;
 
     public Phenotype() {
     }
