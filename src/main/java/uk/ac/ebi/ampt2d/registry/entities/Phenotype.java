@@ -25,7 +25,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
@@ -33,7 +32,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.ZonedDateTime;
+import java.sql.Timestamp;
 
 @Entity
 @EntityListeners({AuditingEntityListener.class, EntityEventListener.class})
@@ -91,12 +90,10 @@ public class Phenotype implements IdentifiableEntity<String> {
 
     @CreatedDate
     @Column(updatable = false)
-    @Convert(converter = ZonedDateAttributeConverter.class)
-    private ZonedDateTime createdDate;
+    private Timestamp createdDate;
 
     @LastModifiedDate
-    @Convert(converter = ZonedDateAttributeConverter.class)
-    private ZonedDateTime lastModifiedDate;
+    private Timestamp lastModifiedDate;
 
     public Phenotype() {
     }
