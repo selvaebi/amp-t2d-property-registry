@@ -138,12 +138,13 @@ public class PropertyRegistryServiceApplicationTests {
         String location = postTestPhenotype();
 
         mockMvc.perform(patch(location).with(oAuthHelper.bearerToken("testEditor@gmail.com"))
-                .content("{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"RENAL\"}"))
+                .content("{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"RENAL\"," + "\"allowedValues\":\"nn.nnnn\"}"))
                 .andExpect(status().is2xxSuccessful());
 
         mockMvc.perform(get(location).with(oAuthHelper.bearerToken("testUser@gmail.com")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.phenotypeGroup").value("RENAL"));
+                .andExpect(jsonPath("$.phenotypeGroup").value("RENAL"))
+                .andExpect(jsonPath("$.allowedValues").value("nn.nnnn"));
     }
 
     @Test
