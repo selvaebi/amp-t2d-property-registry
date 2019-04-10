@@ -20,11 +20,14 @@ package uk.ac.ebi.ampt2d.registry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.ac.ebi.ampt2d.registry.entities.Phenotype;
 
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -34,16 +37,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {"mail.notify=true", "spring.mail.host=invalid_host"})
 @AutoConfigureMockMvc
+@AutoConfigureJsonTesters
 @DirtiesContext(classMode = BEFORE_CLASS)
 public class RegistryUpdateNotificationFailure {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private JacksonTester<Phenotype> phenotypeJacksonTester;
+
     @Test
     public void testPhenotypeEvent() throws Exception {
-        String phenotypeContent = "{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"ANTHROPOMETRIC\"}";
-        mockMvc.perform(post("/phenotypes").content(phenotypeContent))
+        Phenotype phenotype = new Phenotype("BMI", Phenotype.Group.ANTHROPOMETRIC, "Body Mass Index", Phenotype.Type.CONTINUOUS, "nn.nn");
+        mockMvc.perform(post("/phenotypes").content(phenotypeJacksonTester.write(phenotype).getJson()))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("An automated email could not be sent, please contact user@domain"));
     }

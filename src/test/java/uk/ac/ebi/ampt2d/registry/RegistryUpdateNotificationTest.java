@@ -21,12 +21,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.ac.ebi.ampt2d.registry.entities.Phenotype;
+import uk.ac.ebi.ampt2d.registry.entities.Property;
 import uk.ac.ebi.ampt2d.registry.service.mail.MailService;
 
 import static org.mockito.Matchers.anyString;
@@ -43,6 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = BEFORE_CLASS)
+@AutoConfigureJsonTesters
 public class RegistryUpdateNotificationTest {
 
     @Autowired
@@ -51,6 +56,12 @@ public class RegistryUpdateNotificationTest {
     @MockBean
     private MailService mailService;
 
+    @Autowired
+    private JacksonTester<Phenotype> phenotypeJacksonTester;
+
+    @Autowired
+    private JacksonTester<Property> propertyJacksonTester;
+
     @Before
     public void setUp() throws Exception {
         doNothing().when(mailService).send(anyString());
@@ -58,8 +69,8 @@ public class RegistryUpdateNotificationTest {
 
     @Test
     public void testPhenotypeEvent() throws Exception {
-        String phenotypeContent = "{\"id\":\"BMI\"," + "\"phenotypeGroup\":\"ANTHROPOMETRIC\"}";
-        mockMvc.perform(post("/phenotypes").content(phenotypeContent))
+        Phenotype phenotype = new Phenotype("BMI", Phenotype.Group.ANTHROPOMETRIC, "Body Mass Index", Phenotype.Type.CONTINUOUS, "nn.nn");
+        mockMvc.perform(post("/phenotypes").content(phenotypeJacksonTester.write(phenotype).getJson()))
                 .andExpect(status().isCreated());
         verify(mailService, times(1)).send("Phenotype BMI CREATED");
 
@@ -74,11 +85,8 @@ public class RegistryUpdateNotificationTest {
 
     @Test
     public void testPropertyEvent() throws Exception {
-        String propertiesContent = "{\"id\":\"AF\"," +
-                "\"type\":\"FLOAT\"," +
-                "\"meaning\":\"NONE\"," +
-                "\"description\":\"AF\"}";
-        mockMvc.perform(post("/properties").content(propertiesContent))
+        Property property = new Property("AF", Property.Type.FLOAT, Property.Meaning.NONE, "AF");
+        mockMvc.perform(post("/properties").content(propertyJacksonTester.write(property).getJson()))
                 .andExpect(status().isCreated());
         verify(mailService, times(1)).send("Property AF CREATED");
 

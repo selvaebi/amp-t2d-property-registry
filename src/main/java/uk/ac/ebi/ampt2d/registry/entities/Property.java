@@ -30,9 +30,11 @@ import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.ZonedDateTime;
+import java.util.Date;
 
 @Entity
 @EntityListeners({AuditingEntityListener.class, EntityEventListener.class})
@@ -97,10 +99,22 @@ public class Property implements IdentifiableEntity<String> {
 
     @CreatedDate
     @Column(updatable = false)
-    private ZonedDateTime createdDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdDate;
 
     @LastModifiedDate
-    private ZonedDateTime lastModifiedDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastModifiedDate;
+
+    public Property() {
+    }
+
+    public Property(String id, Type type, Meaning meaning, String description) {
+        this.id = id;
+        this.type = type;
+        this.meaning = meaning;
+        this.description = description;
+    }
 
     public String getId() {
         return id;

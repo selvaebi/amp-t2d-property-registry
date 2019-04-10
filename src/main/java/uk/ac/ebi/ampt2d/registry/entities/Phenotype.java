@@ -19,6 +19,7 @@ package uk.ac.ebi.ampt2d.registry.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -29,16 +30,17 @@ import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.ZonedDateTime;
+import java.util.Date;
 
 @Entity
 @EntityListeners({AuditingEntityListener.class, EntityEventListener.class})
 public class Phenotype implements IdentifiableEntity<String> {
 
     public enum Group {
-
         ANTHROPOMETRIC,
         CARDIOVASCULAR,
         GLYCEMIC,
@@ -47,7 +49,13 @@ public class Phenotype implements IdentifiableEntity<String> {
         HEPATIC
     }
 
-    @ApiModelProperty(position = 1)
+    public enum Type {
+        DICHOTOMOUS,
+        MULTICHOTOMOUS,
+        CONTINUOUS
+    }
+
+    @ApiModelProperty(position = 1, required = true)
     @JsonProperty
     @NotNull
     @Size(min = 1, max = 255)
@@ -55,19 +63,52 @@ public class Phenotype implements IdentifiableEntity<String> {
     @Column(nullable = false, unique = true, updatable = false)
     private String id;
 
-    @ApiModelProperty(position = 3)
+    @ApiModelProperty(position = 2, required = true)
     @JsonProperty
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Group phenotypeGroup;
 
+    @ApiModelProperty(position = 3, required = true)
+    @NotNull
+    @NotBlank
+    @JsonProperty
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String description;
+
+    @ApiModelProperty(position = 4, required = true)
+    @JsonProperty
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Type type;
+
+    @ApiModelProperty(position = 5, required = true)
+    @JsonProperty
+    @NotNull
+    @Column(nullable = false)
+    private String allowedValues;
+
     @CreatedDate
     @Column(updatable = false)
-    private ZonedDateTime createdDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdDate;
 
     @LastModifiedDate
-    private ZonedDateTime lastModifiedDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastModifiedDate;
+
+    public Phenotype() {
+    }
+
+    public Phenotype(String id, Group phenotypeGroup, String description, Type type, String allowedValues) {
+        this.id = id;
+        this.phenotypeGroup = phenotypeGroup;
+        this.description = description;
+        this.type = type;
+        this.allowedValues = allowedValues;
+    }
 
     public String getId() {
         return id;
