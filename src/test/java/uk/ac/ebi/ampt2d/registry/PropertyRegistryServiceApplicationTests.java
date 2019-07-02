@@ -18,26 +18,37 @@
 package uk.ac.ebi.ampt2d.registry;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.restdocs.JUnitRestDocumentation;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import uk.ac.ebi.ampt2d.registry.entities.Phenotype;
 import uk.ac.ebi.ampt2d.registry.entities.Property;
 import uk.ac.ebi.ampt2d.registry.repositories.PhenotypeRepository;
 import uk.ac.ebi.ampt2d.registry.repositories.PropertyRepository;
 import uk.ac.ebi.ampt2d.registry.service.mail.MailService;
 
+import javax.annotation.Resource;
+
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -49,12 +60,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {"security.enabled=true", "spring.jpa.hibernate.ddl-auto=none"})
-@AutoConfigureMockMvc
 @AutoConfigureJsonTesters
 @DirtiesContext(classMode = AFTER_CLASS)
 public class PropertyRegistryServiceApplicationTests {
 
-    @Autowired
+    @Rule
+    public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation("target/generated-snippets");
+
     private MockMvc mockMvc;
 
     @Autowired
@@ -75,11 +87,24 @@ public class PropertyRegistryServiceApplicationTests {
     @MockBean
     private MailService mailService;
 
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    @Resource
+    private FilterChainProxy springSecurityFilterChain;
+
     @Before
     public void setUp() throws Exception {
         doNothing().when(mailService).send(anyString());
         phenotypeRepository.deleteAll();
         propertyRepository.deleteAll();
+        mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).apply
+                (documentationConfiguration(restDocumentation))
+                .alwaysDo(document("{method-name}/{step}"
+                        , preprocessRequest(prettyPrint())
+                        , preprocessResponse(prettyPrint())))
+                .addFilters(springSecurityFilterChain)
+                .build();
     }
 
     @Test
