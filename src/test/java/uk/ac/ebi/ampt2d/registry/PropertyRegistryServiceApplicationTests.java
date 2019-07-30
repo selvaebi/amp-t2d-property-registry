@@ -49,6 +49,8 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -115,10 +117,32 @@ public class PropertyRegistryServiceApplicationTests {
                 jsonPath("$._links.phenotypes").exists());
     }
 
-    private String postTestEntity(String uri, String content) throws Exception {
+    private String postTestPhenotypeEntity(String uri, String content) throws Exception {
         MvcResult mvcResult = mockMvc.perform(post(uri).with(oAuthHelper.bearerToken("testEditor@gmail.com")).content
                 (content))
                 .andExpect(status().isCreated())
+                .andDo(document("{method-name}/{step}", requestFields(
+                        fieldWithPath("id").description("Unique identifier of a Phenotype"),
+                        fieldWithPath("description").description("Description of a Phenotype"),
+                        fieldWithPath("type").description("CONTINUOUS/DICHOTOMOUS/TRICHOTOMOUS"),
+                        fieldWithPath("phenotypeGroup").description("Example values: ANTHROPOMETRIC,RENAL.."),
+                        fieldWithPath("allowedValues").description("Format of values eg : nn.nn / 0 or 1")
+                )))
+                .andReturn();
+
+        return mvcResult.getResponse().getHeader("Location");
+    }
+
+    private String postTestPropertyEntity(String uri, String content) throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post(uri).with(oAuthHelper.bearerToken("testEditor@gmail.com")).content
+                (content))
+                .andExpect(status().isCreated())
+                .andDo(document("{method-name}/{step}", requestFields(
+                        fieldWithPath("id").description("Unique identifier of a Property"),
+                        fieldWithPath("description").description("Description of a Property"),
+                        fieldWithPath("type").description("Example values: DOUBLE,INTEGER.."),
+                        fieldWithPath("meaning").description("meaning related to portal")
+                )))
                 .andReturn();
 
         return mvcResult.getResponse().getHeader("Location");
@@ -127,7 +151,7 @@ public class PropertyRegistryServiceApplicationTests {
     private String postTestPhenotype() throws Exception {
         Phenotype phenotype = new Phenotype("BMI", Phenotype.Group.ANTHROPOMETRIC, "Body Mass Index",
                 Phenotype.Type.CONTINUOUS, "nn.nn");
-        return postTestEntity("/phenotypes", phenotypeJacksonTester.write(phenotype).getJson());
+        return postTestPhenotypeEntity("/phenotypes", phenotypeJacksonTester.write(phenotype).getJson());
     }
 
     @Test
@@ -199,7 +223,7 @@ public class PropertyRegistryServiceApplicationTests {
     private String postTestProperty() throws Exception {
         Property property = new Property("CALL_RATE", Property.Type.FLOAT, Property.Meaning.CALL_RATE, "calling rate");
 
-        return postTestEntity("/properties", propertyJacksonTester.write(property).getJson());
+        return postTestPropertyEntity("/properties", propertyJacksonTester.write(property).getJson());
     }
 
     @Test
@@ -281,9 +305,9 @@ public class PropertyRegistryServiceApplicationTests {
         Property property1 = new Property("CALL_RATE", Property.Type.DOUBLE, Property.Meaning.CALL_RATE, "calling rate");
         Property property2 = new Property("MAF", Property.Type.FLOAT, Property.Meaning.MAF, "MAF");
 
-        postTestEntity("/properties", propertyJacksonTester.write(property1).getJson());
+        postTestPropertyEntity("/properties", propertyJacksonTester.write(property1).getJson());
 
-        postTestEntity("/properties", propertyJacksonTester.write(property2).getJson());
+        postTestPropertyEntity("/properties", propertyJacksonTester.write(property2).getJson());
 
         mockMvc.perform(get("/properties?size=1").with(oAuthHelper.bearerToken("testUser@gmail.com")))
                 .andExpect(status().isOk())

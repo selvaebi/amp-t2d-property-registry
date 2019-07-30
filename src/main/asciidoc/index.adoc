@@ -8,6 +8,10 @@ This is an example output for the registry service
 
 ==== Phenotype
 
+.requestFields
+
+include::{snippets}/should-create-phenotype/1/request-fields.adoc[]
+
 .request
 
 include::{snippets}/should-create-phenotype/1/http-request.adoc[]
@@ -18,6 +22,11 @@ include::{snippets}/should-create-phenotype/1/http-response.adoc[]
 
 
 ==== Property
+
+.requestFields
+
+include::{snippets}/should-create-property/1/request-fields.adoc[]
+
 .request
 
 include::{snippets}/should-create-property/1/http-request.adoc[]
