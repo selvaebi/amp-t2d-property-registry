@@ -13,7 +13,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <buildDirectory>${project.basedir}/target</buildDirectory>
     </properties>
 
     <parent>
@@ -108,7 +107,6 @@
     </dependencies>
 
     <build>
-        <directory>${buildDirectory}</directory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
